@@ -146,10 +146,10 @@ app.get("/registerurl", (req, resp) => {
         .post(
           url,
           {
-            ShortCode: "286743",
+            ShortCode: "600998",
             ResponseType: "Complete",
-            ConfirmationURL: "https://crystaladhesivesltd.com/confirmation",
-            ValidationURL: "https://crystaladhesivesltd.com/validation",
+            ConfirmationURL: "http://41.215.83.26:8000/confirmation",
+            ValidationURL: "http://41.215.83.26:8000/validation",
           },
           {
             headers: {
@@ -159,6 +159,7 @@ app.get("/registerurl", (req, resp) => {
         )
         .then((response) => {
           resp.status(200).json(response.data);
+          console.log(req.body);
         })
         .catch((error) => {
           console.log(error);
@@ -178,6 +179,64 @@ app.get("/validation", (req, resp) => {
   console.log(req.body);
  
 });
+
+app.get('/simulate', (req, resp) => {
+  getAccessToken()
+  .then((accessToken)=>{
+    const url = "https://sandbox.safaricom.co.ke/mpesa/c2b/v1/simulate"
+    const auth = "Bearer " + accessToken;
+    axios
+    .post(
+      url,
+      {
+        ShortCode: "600998",
+              CommandID: "CustomerPayBillOnline",
+              Amount: "1",
+              Msisdn: "254708374149",
+              BillRefNumber: "",
+          },
+          {
+            headers: {
+              Authorization: auth,
+            },
+          }
+    )
+      .then((response) => {
+        resp.status(200).json(response.data);
+      })
+      .catch((error) => {
+        console.log(error);
+        resp.status(500).send("❌ Request failed");
+      });
+    });
+
+  });
+  
+ /* request(
+      {
+          url: url,
+          method: "POST",
+          headers: {
+              "Authorization": auth
+          },
+          json: {
+              "ShortCode": "600383",
+              "CommandID": "CustomerPayBillOnline",
+              "Amount": "100",
+              "Msisdn": "254708374149",
+              "BillRefNumber": "TestAPI"
+          }
+      },
+      function (error, response, body) {
+          if (error) {
+              console.log(error)
+          }
+          else {
+              res.status(200).json(body)
+          }
+      }
+  )
+})*/
 
 // B2C ROUTE OR AUTO WITHDRAWAL
 app.get("/b2curlrequest", (req, res) => {
