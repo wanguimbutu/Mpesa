@@ -22,9 +22,9 @@ const server = http.createServer(app);
 var mysql = require('mysql');
 var con = mysql.createConnection({
   host: "127.0.0.1",
-  user: "root",
-  password: "admin",
-  database: "ca"
+  user: "",
+  password: "",
+  database: ""
 });
 
 con.connect(function(err) {
@@ -148,8 +148,8 @@ app.get("/registerurl", (req, resp) => {
           {
             ShortCode: "600998",
             ResponseType: "Complete",
-            ConfirmationURL: "http://41.215.83.26:8000/confirmation",
-            ValidationURL: "http://41.215.83.26:8000/validation",
+            ConfirmationURL: "http://mydomain.com/confirmation",
+            ValidationURL: "http://mydomain.com/validation",
           },
           {
             headers: {
