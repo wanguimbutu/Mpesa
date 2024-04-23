@@ -20,8 +20,8 @@ router.get("/api/access_token", (req, res) => {
 });
 
 async function getAccessToken() {
-  const consumer_key = ""; // REPLACE IT WITH YOUR CONSUMER KEY
-  const consumer_secret = ""; // REPLACE IT WITH YOUR CONSUMER SECRET
+  const consumer_key = "oD6Gn8RIc1tf9UIVQigRBHucrfAo30lOEaYwDoUcKTdahEwl"; // REPLACE IT WITH YOUR CONSUMER KEY
+  const consumer_secret = "gpem69yBmABKAmAad1AoiVKW7J8AcAVVfAPgklMTG3wBmcoaH76H03I64A4V0IQ7"; // R // REPLACE IT WITH YOUR CONSUMER SECRET
   const url =
     "https://api.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials";
 
@@ -61,12 +61,12 @@ router.post('/api/stkpush', (req, res) => {
   getAccessToken()
     .then((accessToken) => {
       const url =
-        "https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest";
+        "https://api.safaricom.co.ke/mpesa/stkpush/v1/processrequest";
       const auth = "Bearer " + accessToken;
       const timestamp = moment().format("YYYYMMDDHHmmss");
       const password = new Buffer.from(
-        "174379" +
-        "bfb279f9aa9bdbcf158e97dd71a467cd2e0c893059b10f78e6b72ada1ed2c919" +
+        "286493" +
+        " 509d5f787fb2263f1024ea8fbf8837fb4410780d8f15818e4461b2ca98113a6c" +
         timestamp
       ).toString("base64");
 
@@ -74,7 +74,7 @@ router.post('/api/stkpush', (req, res) => {
         .post(
           url,
           {
-            BusinessShortCode: "174379",
+            BusinessShortCode: "286493",
             Password: password,
             Timestamp: timestamp,
             TransactionType: "CustomerPayBillOnline",
@@ -82,7 +82,7 @@ router.post('/api/stkpush', (req, res) => {
             PartyA: phoneNumber,
             PartyB: "174379",
             PhoneNumber: phoneNumber,
-            CallBackURL: "https://249e-105-60-226-239.ngrok-free.app/api/callback",
+            CallBackURL: "https://crystaladhesivesltd.com/callback",
             AccountReference: accountNumber,
             TransactionDesc: "Mpesa Daraja API stk push test",
           },

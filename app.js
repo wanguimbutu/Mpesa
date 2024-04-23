@@ -19,25 +19,12 @@ app.use('/', apiRouter);
 
 const server = http.createServer(app);
 
-var mysql = require('mysql');
-var con = mysql.createConnection({
-  host: "127.0.0.1",
-  user: "",
-  password: "",
-  database: ""
-});
-
-con.connect(function(err) {
-  if (err) throw err;
-  console.log("You are connected!");
-});
-con.end();
 // ACCESS TOKEN FUNCTION - Updated to use 'axios'
 async function getAccessToken() {
-  const consumer_key = "DXgusKXAoII56TNMYrI4gP1RqAV83TXhfT1FwpH4AAMHcyC0"; // REPLACE IT WITH YOUR CONSUMER KEY
-  const consumer_secret = "gkAQOCe7eGX6A4XCoMiPMaCOGz7GRsjR1XiJGDSmKaAu3jXfoyLjAwQP4aBt3P98"; // REPLACE IT WITH YOUR CONSUMER SECRET
+  const consumer_key = "oD6Gn8RIc1tf9UIVQigRBHucrfAo30lOEaYwDoUcKTdahEwl"; // REPLACE IT WITH YOUR CONSUMER KEY
+  const consumer_secret = "gpem69yBmABKAmAad1AoiVKW7J8AcAVVfAPgklMTG3wBmcoaH76H03I64A4V0IQ7"; // REPLACE IT WITH YOUR CONSUMER SECRET
   const url =
-    "https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials";
+    "https://api.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials";
   const auth =
     "Basic " +
     new Buffer.from(consumer_key + ":" + consumer_secret).toString("base64");
@@ -79,12 +66,12 @@ app.get("/stkpush", (req, res) => {
   getAccessToken()
     .then((accessToken) => {
       const url =
-        "https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest";
+        "https://api.safaricom.co.ke/mpesa/stkpush/v1/processrequest";
       const auth = "Bearer " + accessToken;
       const timestamp = moment().format("YYYYMMDDHHmmss");
       const password = new Buffer.from(
-        "174379" +
-          "bfb279f9aa9bdbcf158e97dd71a467cd2e0c893059b10f78e6b72ada1ed2c919" +
+        "286493" +
+          "509d5f787fb2263f1024ea8fbf8837fb4410780d8f15818e4461b2ca98113a6c" +
           timestamp
       ).toString("base64");
 
@@ -92,16 +79,16 @@ app.get("/stkpush", (req, res) => {
         .post(
           url,
           {
-            BusinessShortCode: "174379",
+            BusinessShortCode: "286493",
             Password: password,
             Timestamp: timestamp,
             TransactionType: "CustomerPayBillOnline",
             Amount: "1",
             PartyA: "254768140326", //phone number to receive the stk push
-            PartyB: "174379",
+            PartyB: "286493",
             PhoneNumber: "254768140326",
-            CallBackURL: "https://dd3d-105-160-22-207.ngrok-free.app/callback",
-            AccountReference: "CA PAY",
+            CallBackURL: "https://crystaladhesivesltd.com/callback",
+            AccountReference: "CRYSTAL ADHESIVES",
             TransactionDesc: "Mpesa Daraja API stk push test",
           },
           {
@@ -140,16 +127,16 @@ app.post("/callback", (req, res) => {
 app.get("/registerurl", (req, resp) => {
   getAccessToken()
     .then((accessToken) => {
-      const url = "https://sandbox.safaricom.co.ke/mpesa/c2b/v1/registerurl";
+      const url = "https://api.safaricom.co.ke/mpesa/c2b/v2/registerurl";
       const auth = "Bearer " + accessToken;
       axios
         .post(
           url,
           {
-            ShortCode: "600998",
-            ResponseType: "Complete",
-            ConfirmationURL: "http://mydomain.com/confirmation",
-            ValidationURL: "http://mydomain.com/validation",
+            ShortCode: "286493",
+            ResponseType: "Completed",
+            ConfirmationURL: "https://crystaladhesivesltd.com/confirmation",
+            ValidationURL: "https://crystaladhesivesltd.com.com/validation",
           },
           {
             headers: {
