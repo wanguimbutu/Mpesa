@@ -10,7 +10,7 @@ const cors = require("cors");
 const fs = require("fs");
 
 
-const port = 8000;
+const port = 3000;
 const hostname = "localhost";
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -19,10 +19,13 @@ app.use('/', apiRouter);
 
 const server = http.createServer(app);
 
+
+
+
 // ACCESS TOKEN FUNCTION - Updated to use 'axios'
 async function getAccessToken() {
-  const consumer_key = "oD6Gn8RIc1tf9UIVQigRBHucrfAo30lOEaYwDoUcKTdahEwl"; // REPLACE IT WITH YOUR CONSUMER KEY
-  const consumer_secret = "gpem69yBmABKAmAad1AoiVKW7J8AcAVVfAPgklMTG3wBmcoaH76H03I64A4V0IQ7"; // REPLACE IT WITH YOUR CONSUMER SECRET
+  const consumer_key = ""; // REPLACE IT WITH YOUR CONSUMER KEY
+  const consumer_secret = ""; // REPLACE IT WITH YOUR CONSUMER SECRET
   const url =
     "https://api.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials";
   const auth =
@@ -37,7 +40,7 @@ async function getAccessToken() {
     });
    
     const dataresponse = response.data;
-    // console.log(data);
+  
     const accessToken = dataresponse.access_token;
     return accessToken;
   } catch (error) {
@@ -45,8 +48,8 @@ async function getAccessToken() {
   }
 }
 
-app.get("/", (req, res) => {
-  res.send("MPESA DARAJA API WITH NODE JS BY WANGUIMBUTU");
+app.get("/api", (req, res) => {
+  res.send("MPESA DARAJA API C2B AND LIPA NA MPESA");
   var timeStamp = moment().format("YYYYMMDDHHmmss");
   console.log(timeStamp);
 });
@@ -56,7 +59,7 @@ app.get("/", (req, res) => {
 app.get("/access_token", (req, res) => {
   getAccessToken()
     .then((accessToken) => {
-      res.send("😀 Your access token is " + accessToken);
+      res.send(" Your access token is " + accessToken);
     })
     .catch(console.log);
 });
@@ -70,8 +73,9 @@ app.get("/stkpush", (req, res) => {
       const auth = "Bearer " + accessToken;
       const timestamp = moment().format("YYYYMMDDHHmmss");
       const password = new Buffer.from(
-        "286493" +
-          "509d5f787fb2263f1024ea8fbf8837fb4410780d8f15818e4461b2ca98113a6c" +
+        //ADD SHORTCODE
+        "" +
+          "ADD PASSKEY" +
           timestamp
       ).toString("base64");
 
@@ -79,16 +83,16 @@ app.get("/stkpush", (req, res) => {
         .post(
           url,
           {
-            BusinessShortCode: "286493",
+            BusinessShortCode: "",//SHORTCODE
             Password: password,
             Timestamp: timestamp,
             TransactionType: "CustomerPayBillOnline",
-            Amount: "1",
-            PartyA: "254768140326", //phone number to receive the stk push
-            PartyB: "286493",
-            PhoneNumber: "254768140326",
-            CallBackURL: "https://crystaladhesivesltd.com/callback",
-            AccountReference: "CRYSTAL ADHESIVES",
+            Amount: "",
+            PartyA: "", //phone number to receive the stk push
+            PartyB: "174379",
+            PhoneNumber: "",
+            CallBackURL: "https://yoururl/callback",
+            AccountReference: "",
             TransactionDesc: "Mpesa Daraja API stk push test",
           },
           {
@@ -98,11 +102,11 @@ app.get("/stkpush", (req, res) => {
           }
         )
         .then((response) => {
-          res.send("😀 Request is successful done ✔✔. Please enter mpesa pin to complete the transaction");
+          res.send(" Request is successful. Please enter mpesa pin to complete the transaction");
         })
         .catch((error) => {
           console.log(error);
-          res.status(500).send("❌ Request failed");
+          res.status(500).send(" Request failed");
         });
     })
     .catch(console.log);
@@ -133,10 +137,10 @@ app.get("/registerurl", (req, resp) => {
         .post(
           url,
           {
-            ShortCode: "286493",
+            ShortCode: "",
             ResponseType: "Completed",
-            ConfirmationURL: "https://crystaladhesivesltd.com/confirmation",
-            ValidationURL: "https://crystaladhesivesltd.com.com/validation",
+            ConfirmationURL: "https://yoururl/confirmation",
+            ValidationURL: "https://yoururl/validation",
           },
           {
             headers: {
@@ -150,23 +154,75 @@ app.get("/registerurl", (req, resp) => {
         })
         .catch((error) => {
           console.log(error);
-          resp.status(500).send("❌ Request failed");
+          resp.status(500).send(" Request failed");
         });
     })
     .catch(console.log);
 });
 
-app.get("/confirmation", (req, res) => {
-  console.log("All transactions will be sent to this URL");
-  console.log(req.body);
+//confirmation body
+app.post("/confirmation",(req,res)=>{
+  const mpesaResponse =req.body
+  const mpesaResponseString = JSON.stringify(mpesaResponse, null, 2);
+
+  // Write M-Pesa response to a file named 'C2bPesaResponse.json'
+  fs.appendFile('C2bPesaResponse.json', mpesaResponseString, (err) => {
+    if (err) {
+      console.error('Error logging M-Pesa response:', err);
+      res.status(500).json({ error: 'Error logging M-Pesa response' });
+    } else {
+      console.log('M-Pesa response logged successfully');
+      res.json({ ResultCode: 0, ResultDesc: 'Confirmation Received Successfully' });
+    }
+  });
+  
+})
+
+// Endpoint to retrieve all M-Pesa confirmations
+app.get('/confirmation', (req, res) => {
+  fs.readFile('C2bPesaResponse.json', 'utf8', (err, data) => {
+    if (err) {
+      console.error('Error reading M-Pesa response file:', err);
+      res.status(500).json({ error: 'Error reading M-Pesa response file' });
+    } else {
+      // Split the file contents by new lines and filter out empty lines
+      const responses = data.split('\n').filter(line => line.trim() !== '');
+      res.json(responses);
+    }
+  });
 });
 
-app.get("/validation", (req, resp) => {
-  console.log("Validating payment");
-  console.log(req.body);
- 
+
+app.post("/validation",(req,res)=>{
+  const mpesaResponse =req.body
+  const mpesaResponseString = JSON.stringify(mpesaResponse, null, 2);
+
+  // Write M-Pesa response to a file named 'C2bPesaResponse.json'
+  fs.appendFile('validationresponse.txt', mpesaResponseString, (err) => {
+    if (err) {
+      console.error('Error logging M-Pesa response:', err);
+      res.status(500).json({ error: 'Error logging M-Pesa response' });
+    } else {
+      console.log('M-Pesa response logged successfully');
+      res.json({ ResultCode: 0, ResultDesc: 'Confirmation Received Successfully' });
+    }
+  });
 });
 
+app.get('/validation', (req, res) => {
+  fs.readFile('validationresponse.txt', 'utf8', (err, data) => {
+    if (err) {
+      console.error('Error reading M-Pesa response file:', err);
+      res.status(500).json({ error: 'Error reading M-Pesa response file' });
+    } else {
+      // Split the file contents by new lines and filter out empty lines
+      const responses = data.split('\n').filter(line => line.trim() !== '');
+      res.json(responses);
+    }
+  });
+});
+
+//only works on sandbox not production
 app.get('/simulate', (req, resp) => {
   getAccessToken()
   .then((accessToken)=>{
@@ -176,10 +232,10 @@ app.get('/simulate', (req, resp) => {
     .post(
       url,
       {
-        ShortCode: "600998",
+        ShortCode: "600984",
               CommandID: "CustomerPayBillOnline",
               Amount: "1",
-              Msisdn: "254708374149",
+              Msisdn: "254768140326",
               BillRefNumber: "",
           },
           {
@@ -193,38 +249,13 @@ app.get('/simulate', (req, resp) => {
       })
       .catch((error) => {
         console.log(error);
-        resp.status(500).send("❌ Request failed");
+        resp.status(500).send(" Request failed");
       });
     });
 
   });
   
- /* request(
-      {
-          url: url,
-          method: "POST",
-          headers: {
-              "Authorization": auth
-          },
-          json: {
-              "ShortCode": "600383",
-              "CommandID": "CustomerPayBillOnline",
-              "Amount": "100",
-              "Msisdn": "254708374149",
-              "BillRefNumber": "TestAPI"
-          }
-      },
-      function (error, response, body) {
-          if (error) {
-              console.log(error)
-          }
-          else {
-              res.status(200).json(body)
-          }
-      }
-  )
-})*/
-
+ 
 // B2C ROUTE OR AUTO WITHDRAWAL
 app.get("/b2curlrequest", (req, res) => {
   getAccessToken()
@@ -242,7 +273,7 @@ app.get("/b2curlrequest", (req, res) => {
             CommandID: "PromotionPayment",
             Amount: "1",
             PartyA: "600996",
-            PartyB: "254768140326",//phone number to receive the stk push
+            PartyB: "",//phone number to receive the stk push
             Remarks: "Withdrawal",
             QueueTimeOutURL: "https://mydomain.com/b2c/queue",
             ResultURL: "https://mydomain.com/b2c/result",
@@ -259,11 +290,12 @@ app.get("/b2curlrequest", (req, res) => {
         })
         .catch((error) => {
           console.log(error);
-          res.status(500).send("❌ Request failed");
+          res.status(500).send(" Request failed");
         });
     })
     .catch(console.log);
 });
+
 
 
 server.listen(port, hostname, () => {
